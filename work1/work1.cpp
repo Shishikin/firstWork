@@ -212,7 +212,6 @@ void PrintStructTest(Test& testStruct)
     PrintStructStringValue(testStruct);
 }
 
-
 void TestToTimeDate(Test& test, TimeDate& timeDate)
 {
     timeDate.data = test.data;
@@ -243,30 +242,9 @@ void DoubleValueToDoubleValue(Value& testStruct, Value& result)
 }
 
 
-
-/*
-
-void PrintDays(Days &testStruct)
-{
-    std::cout << testStruct.precipitation << '\t';
-    std::cout << testStruct.temperature << '\t';
-    std::cout << testStruct.humidity << '\t';
-    std::cout << testStruct.windSpeed << '\n';
-}
-
-void PrintBaseDays(BaseDays testStruct)
-{
-    std::cout << testStruct.data << '\t';
-    std::cout << testStruct.precipitation << '\t';
-    std::cout << testStruct.temperature << '\t';
-    std::cout << testStruct.humidity << '\t';
-    std::cout << testStruct.windSpeed << '\n';
-}
-*/
 int main()
-{
-    
-    int n = 4;  // выбор числа элементов
+{    
+    int n = 5;  // выбор числа элементов
     std::vector <Test> testStruct;  //создание вектора промежуточных структур
     std::vector <TimeDate> timeDateStruct;
     TimeDate testtimeDateStruct = TimeDate(n);
@@ -275,11 +253,10 @@ int main()
     std::ofstream out;
     std::ofstream fout;
     fout.open("result2.txt");
-    out.open("bigresult.txt");
-    std::string nameFile = "onefile.txt";
+    out.open("bigresult2.txt");
+    std::string nameFile = "bigbook2.txt";
     in.open(nameFile);
-    std::string testString;
-    
+    std::string testString;    
     if (in.is_open())
     {
         // заполнение вектора промежуточных структур,
@@ -291,72 +268,48 @@ int main()
             testStruct.push_back(testingStruct);
             timeDateStruct.push_back(testtimeDateStruct);
             FillstructTest(i, testStruct[i], testString);
-            PrintStructTest(testStruct[i]);
             TestToTimeDate(testStruct[i], timeDateStruct[i]);
-            PrintTimeDate(timeDateStruct[i]);
+//            PrintTimeDate(timeDateStruct[i]);
             i = i + 1;
-        }
-        
+        } 
         std::map <std::string, Days> days;
         Days day = Days(n);
         for (auto& a : timeDateStruct)
-        {
-            
+        {            
             if (a.data != "")
-            {
-                // функцию мне кажется ао доработатьь
-                
-                DoubleValueToDoubleValue(a, day);
-                
+            {                
+                DoubleValueToDoubleValue(a, day);                
                 if (days.count(a.data))
-                {
- //                   std::cout << "ntr\n"
-                    
+                {                  
                     for (int i = 0; i < n; ++i)
                     {
                         if (std::abs(day.value[i] - MANY) > 10000)
                         {                            
                             days[a.data].value[i] = days[a.data].value[i] + day.value[i];
                             days[a.data].number[i] = days[a.data].number[i] + 1;
-//                            std::cout << days[a.data].number[i];
                         }
-                    }
-                    
+                    }                    
                 }
                 else
                 {
-                    
-                    // ошибка если первый элемент имеет значение равное MANY. то он попадает сюда
-                    
                     for (int i = 0; i < n; ++i)
                     {
                         if (std::abs(MANY-day.value[i]) < 10000)
                         {
-
-//                            day.number[i] = 1;
+                            day.number[i] = 0;
+//                            std::cout << a.data << day.number[i] << '\n';
                             day.value[i] = 0;
+
                         }
                         else
                         {
-//                            day.value[i] = 0;
                             day.number[i] = 1;
-                            std::cout << "!!!" << '\t';
                         }
-                        
                     }
                     days.insert({ a.data, day });
-//                    PrintStructValue(days[a.data].value);
-//                    days[a.data];
-                    out << a.data << "\t" << days[a.data].value[0] << "\n";
                 }
-                
-                
-
-
-            }
-            
-        }
-        
+            }          
+        }        
         for (auto& a : days)
         {
             for (int i = 0; i < n; ++i)
@@ -366,12 +319,11 @@ int main()
                     a.second.value[i] = a.second.value[i] / a.second.number[i];
                 }
                 else
-                {
-                    
-                    a.second.number[i] = MANY;
+                {   
+                    a.second.value[i] = MANY;
+                    std::cout <<a.first <<'\t'<< a.second.number[i] << '\n';
                 }
-            }
-            
+            }            
             out << a.first;
             StringValue str = StringValue(n);
             for (int i = 0; i < n; ++i)
@@ -380,18 +332,13 @@ int main()
                 str.stringValue[i] = PointToComma(str.stringValue[i]);
                 out << '\t' << str.stringValue[i];
             }
-            out << '\n';
-            
-        }
-        
-        
+            out << '\n';            
+        }                
     }
     else
     {
         std::cout << "error";
-    }
-    
-    std::cout << "Hello World!\n";
+    }    
     return 0;
 }
 
