@@ -1,0 +1,9 @@
+﻿  work1.cpp
+C:\visial studio\work1\work1\work1.cpp(371,46): warning C4305: =: усечение из "__int64" в "_Ty"
+          with
+          [
+              _Ty=int
+          ]
+C:\visial studio\work1\work1\work1.cpp(371,42): warning C4309: =: усечение константного значения
+C:\visial studio\work1\work1\work1.cpp(177): warning C4715: StringToDouble: значение возвращается не при всех путях выполнения
+  work1.vcxproj -> C:\visial studio\work1\x64\Debug\work1.exe
