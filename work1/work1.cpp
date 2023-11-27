@@ -33,7 +33,7 @@ struct Value
             value.push_back(0);
         }
     }
-    Value()  
+    Value()
     {
         n = MAX;
         for (int i = 0; i < MAX; ++i)
@@ -70,16 +70,16 @@ struct StringValue
 
 // промежуточная структура все данные в виде строк
 // поля имеют смысл, хотя мне кажется это лишнее
-struct Test : public Time, public Data, public StringValue 
-{ 
+struct Test : public Time, public Data, public StringValue
+{
     Test(int n_) : StringValue(n_)
     {
     }
 };
 
-struct TimeDate : public Data, public Time, public Value 
+struct TimeDate : public Data, public Time, public Value
 {
-    TimeDate(int n_): Value(n_)
+    TimeDate(int n_) : Value(n_)
     {}
 };
 
@@ -92,7 +92,7 @@ struct Days : public Value
         {
             number.push_back(0);
         }
-    }    
+    }
     Days() : Value()
     {
         for (int i = 0; i < MAX; ++i)
@@ -103,7 +103,7 @@ struct Days : public Value
 };
 
 // в зависимости от счётчика (count) прибавляемк строке символ
-void ChoosePluseStringOfTest(char a, struct Test& testStruct, int count )
+void ChoosePluseStringOfTest(char a, struct Test& testStruct, int count)
 {
     if (count == 0)
     {
@@ -243,7 +243,7 @@ void DoubleValueToDoubleValue(Value& testStruct, Value& result)
 
 
 int main()
-{    
+{
     int n = 5;  // выбор числа элементов
     std::vector <Test> testStruct;  //создание вектора промежуточных структур
     std::vector <TimeDate> timeDateStruct;
@@ -252,11 +252,19 @@ int main()
     std::ifstream in;
     std::ofstream out;
     std::ofstream fout;
+    std::string nameFileIn;
+    std::cout << "InputFile\n";
+    std::cin >> nameFileIn;
+    std::cout << "OutputFile\n";
+    std::string nameFileOut;
+    std::cin >> nameFileOut;    
     fout.open("result2.txt");
-    out.open("bigresult2.txt");
-    std::string nameFile = "bigbook2.txt";
-    in.open(nameFile);
-    std::string testString;    
+    out.open(nameFileOut);
+ //   out.open("bigresult3.txt");
+ //   std::string nameFileIn = "bigbook2.txt";
+   
+    in.open(nameFileIn);
+    std::string testString;
     if (in.is_open())
     {
         // заполнение вектора промежуточных структур,
@@ -269,35 +277,34 @@ int main()
             timeDateStruct.push_back(testtimeDateStruct);
             FillstructTest(i, testStruct[i], testString);
             TestToTimeDate(testStruct[i], timeDateStruct[i]);
-//            PrintTimeDate(timeDateStruct[i]);
+            //            PrintTimeDate(timeDateStruct[i]);
             i = i + 1;
-        } 
+        }
         std::map <std::string, Days> days;
         Days day = Days(n);
         for (auto& a : timeDateStruct)
-        {            
+        {
             if (a.data != "")
-            {                
-                DoubleValueToDoubleValue(a, day);                
+            {
+                DoubleValueToDoubleValue(a, day);
                 if (days.count(a.data))
-                {                  
+                {
                     for (int i = 0; i < n; ++i)
                     {
                         if (std::abs(day.value[i] - MANY) > 10000)
-                        {                            
+                        {
                             days[a.data].value[i] = days[a.data].value[i] + day.value[i];
                             days[a.data].number[i] = days[a.data].number[i] + 1;
                         }
-                    }                    
+                    }
                 }
                 else
                 {
                     for (int i = 0; i < n; ++i)
                     {
-                        if (std::abs(MANY-day.value[i]) < 10000)
+                        if (std::abs(MANY - day.value[i]) < 10000)
                         {
                             day.number[i] = 0;
-//                            std::cout << a.data << day.number[i] << '\n';
                             day.value[i] = 0;
 
                         }
@@ -308,8 +315,8 @@ int main()
                     }
                     days.insert({ a.data, day });
                 }
-            }          
-        }        
+            }
+        }
         for (auto& a : days)
         {
             for (int i = 0; i < n; ++i)
@@ -319,28 +326,38 @@ int main()
                     a.second.value[i] = a.second.value[i] / a.second.number[i];
                 }
                 else
-                {   
+                {
                     a.second.value[i] = MANY;
-                    std::cout <<a.first <<'\t'<< a.second.number[i] << '\n';
                 }
-            }            
+            }
             out << a.first;
             StringValue str = StringValue(n);
             for (int i = 0; i < n; ++i)
             {
-                str.stringValue[i] = std::to_string(a.second.value[i]);
-                str.stringValue[i] = PointToComma(str.stringValue[i]);
-                out << '\t' << str.stringValue[i];
+                if (std::abs(a.second.value[i] - MANY) > 10000)
+                {
+                    str.stringValue[i] = std::to_string(a.second.value[i]);
+                    str.stringValue[i] = PointToComma(str.stringValue[i]);
+                    out << '\t' << str.stringValue[i];
+                }
+                else
+                {
+                    str.stringValue[i] = "";
+                    out << '\t' << str.stringValue[i];
+                }
             }
-            out << '\n';            
-        }                
+            out << '\n';
+        }
     }
     else
     {
         std::cout << "error";
-    }    
+    }
     return 0;
 }
+
+
+
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
 // Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
