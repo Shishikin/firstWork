@@ -26,11 +26,11 @@ double StringToDouble(std::string& str)
 // структура для хранения времени и даты
 struct DateTime
 {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
 
     // оператор меньше требуется для std::map
     bool operator <(const DateTime& other) const
@@ -178,6 +178,73 @@ void FormatInputFileLine(std::string& str)
     }
 }
 
+// функция хранит значение
+void PushDateTimeValueToMapDays(std::map <DateTime, Days>& days, Days day, const DateTimeValue& a)
+{
+    if (days.count(a.dateTime))
+    {
+        for (int i = 0; i < a.value.size(); ++i)
+        {
+            if (std::abs(a.value[i] - MANY) > 10000)
+            {
+                days[a.dateTime].value[i] = days[a.dateTime].value[i] + a.value[i];
+                days[a.dateTime].number[i] = days[a.dateTime].number[i] + 1;
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < a.value.size(); ++i)
+        {
+            if (std::abs(MANY - a.value[i]) < 10000)
+            {
+                day.number[i] = 0;
+                day.value[i] = 0;
+
+            }
+            else
+            {
+                day.value[i] = a.value[i];
+                day.number[i] = 1;
+            }
+        }
+        days.insert({ a.dateTime, day });
+    }
+}
+
+void AverageMapDays(std::map <DateTime, Days>& days)
+{
+    for (auto& a : days)
+    {
+        for (int i = 0; i < a.second.value.size(); ++i)
+        {
+            if (a.second.number[i] != 0)
+            {
+                a.second.value[i] = a.second.value[i] / a.second.number[i];
+                a.second.number[i] = 0;
+            }
+            else
+            {
+                a.second.value[i] = MANY;
+            }
+        }
+    }
+}
+
+
+void VectorToMapAverageDays(std::map <DateTime, Days>& days,
+           std::vector <DateTimeValue>& dateTimeValueVector)
+{
+    Days day = Days(dateTimeValueVector[0].value.size());
+    for (auto& a : dateTimeValueVector)
+    {
+        a.dateTime.hour = 10000;
+        a.dateTime.minute = 10000;
+        PushDateTimeValueToMapDays(days, day, a);
+    }
+    AverageMapDays(days);
+}
+
 
 int main()
 {
@@ -186,10 +253,14 @@ int main()
     SetConsoleOutputCP(1251);
 #endif
 
+    // открытия файла ввода
     std::ifstream in;
     std::string pathFileInput;
     std::cout << "InputFile\n";
     std::cin >> pathFileInput;
+
+
+
 
     in.exceptions(std::ifstream::badbit);
     try
@@ -210,7 +281,8 @@ int main()
     }
 
     std::vector <DateTimeValue> dateTimeValueVector;
-
+    
+    // заполнение данными из файла в vector
     std::string str;
     while (!in.eof())
     {
@@ -228,58 +300,10 @@ int main()
 
 
     std::map <DateTime, Days> days;
+    VectorToMapAverageDays(days, dateTimeValueVector);
+    
 
-    Days day = Days(dateTimeValueVector[0].value.size());
-    for (auto& a : dateTimeValueVector)
-    {
-        a.dateTime.hour = 1000;
-        a.dateTime.minute = 1000;
-        if (days.count(a.dateTime))
-        {
-            for (int i = 0; i < a.value.size(); ++i)
-            {
-                if (std::abs(a.value[i] - MANY) > 10000)
-                {
-                    days[a.dateTime].value[i] = days[a.dateTime].value[i] + a.value[i];
-                    days[a.dateTime].number[i] = days[a.dateTime].number[i] + 1;
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < a.value.size(); ++i)
-            {
-                if (std::abs(MANY - a.value[i]) < 10000)
-                {
-                    day.number[i] = 0;
-                    day.value[i] = 0;
-
-                }
-                else
-                {
-                    day.value[i] = a.value[i];
-                    day.number[i] = 1;
-                }
-            }
-            days.insert({ a.dateTime, day });
-        }
-    }
-    for (auto& a : days)
-    {
-        for (int i = 0; i < a.second.value.size(); ++i)
-        {
-            if (a.second.number[i] != 0)
-            {
-                a.second.value[i] = a.second.value[i] / a.second.number[i];
-                a.second.number[i] = 0;
-            }
-            else
-            {
-                a.second.value[i] = MANY;
-            }
-        }
-    }
-
+    // открытие файла для вывода
     std::ofstream out;
     std::string pathFileOutput;
     std::cout << "OutputFile\n";
@@ -295,14 +319,14 @@ int main()
     out.close();
 
 
-    /*
+ /*
         for (auto& a : days)
         {
             std::cout << a.first << '\t';
             std::cout << a.second << '\n';
         }
-     */
-
+     
+*/
 
     return 0;
 }
