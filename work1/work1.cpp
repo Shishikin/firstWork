@@ -18,9 +18,7 @@
 double StringToDouble(std::string& str)
 {
     // если строчка пустая возвращаем значение Many
-
     return str == "" ? MANY : std::stod(str);
-
 }
 
 // структура для хранения времени и даты
@@ -62,9 +60,9 @@ struct DateTime
 
         std::stringstream inDate(strDate);
         std::stringstream inTime(strTime);
-        GetlineToInt(year, inDate, '.');
-        GetlineToInt(month, inDate, '.');
         GetlineToInt(day, inDate, '.');
+        GetlineToInt(month, inDate, '.');
+        GetlineToInt(year, inDate, '.');                
         GetlineToInt(hour, inTime, ':');
         GetlineToInt(minute, inTime, ':');
     }
@@ -231,20 +229,81 @@ void AverageMapDays(std::map <DateTime, Days>& days)
     }
 }
 
+DateTimeValue NoTime(DateTimeValue a)
+{
+    a.dateTime.hour = 10000;
+    a.dateTime.minute = 10000;
+    return a;
+}
+
+DateTimeValue Decade(DateTimeValue a)
+{
+    a.dateTime.hour = 10000;
+    a.dateTime.minute = 10000;
+//    a.dateTime.day = a.dateTime.day / 10 < 2 ? a.dateTime.day / 10 + 1 : 2 + 1;
+    if (a.dateTime.day / 10 < 2 )
+    {
+        if (a.dateTime.day  != 10)
+        {
+            a.dateTime.day = a.dateTime.day / 10 * 10 + 1;
+        } 
+        else
+        {
+            a.dateTime.day = 1;
+        }
+    }
+    else
+    {
+        if (a.dateTime.day != 20)
+        {
+            a.dateTime.day = 21;
+        }
+        else
+        {
+            a.dateTime.day = 11;
+        }
+    }
+    return a;
+}
 
 void VectorToMapAverageDays(std::map <DateTime, Days>& days,
-           std::vector <DateTimeValue>& dateTimeValueVector)
+           std::vector <DateTimeValue>& dateTimeValueVector,
+    DateTimeValue(*func_ptr)(DateTimeValue))
 {
     Days day = Days(dateTimeValueVector[0].value.size());
     for (auto& a : dateTimeValueVector)
     {
-        a.dateTime.hour = 10000;
-        a.dateTime.minute = 10000;
+        a = func_ptr(a);
         PushDateTimeValueToMapDays(days, day, a);
     }
     AverageMapDays(days);
 }
 
+void MapToVector(std::vector <DateTimeValue>& daysVector, std::map <DateTime, Days> days)
+{
+    DateTimeValue  day;
+    for (auto& a : days)
+    {
+        day.dateTime = a.first;
+        day.value = a.second.value;
+        daysVector.push_back(day);
+    }
+}
+
+// открытие файла для вывода
+void OutputFile(std::vector <DateTimeValue> daysVector, std::string message)
+{
+    std::ofstream out;
+    std::string pathFileOutput;
+    std::cout << message << '\n';
+    std::cin >> pathFileOutput;
+    out.open(pathFileOutput);
+    for (auto& a : daysVector)
+    {
+        out << a << '\n';
+    }
+    out.close();
+}
 
 int main()
 {
@@ -258,8 +317,6 @@ int main()
     std::string pathFileInput;
     std::cout << "InputFile\n";
     std::cin >> pathFileInput;
-
-
 
 
     in.exceptions(std::ifstream::badbit);
@@ -298,36 +355,21 @@ int main()
 
     in.close();
 
-
     std::map <DateTime, Days> days;
-    VectorToMapAverageDays(days, dateTimeValueVector);
+    VectorToMapAverageDays(days, dateTimeValueVector, &NoTime);
+
+    std::vector <DateTimeValue> daysVector;
+    MapToVector(daysVector, days);
+
+    OutputFile(daysVector, "OutputFileDays");
     
+    std::map <DateTime, Days> decadeMap;
+    VectorToMapAverageDays(decadeMap, daysVector, &Decade);
+    std::vector <DateTimeValue> decadeVector;
+    MapToVector(decadeVector, decadeMap);
 
-    // открытие файла для вывода
-    std::ofstream out;
-    std::string pathFileOutput;
-    std::cout << "OutputFile\n";
-    std::cin >> pathFileOutput;
-    out.open(pathFileOutput);
-
-    for (auto& a : days)
-    {
-        out << a.first << '\t';
-        out << a.second << '\n';
-    }
-
-    out.close();
-
-
- /*
-        for (auto& a : days)
-        {
-            std::cout << a.first << '\t';
-            std::cout << a.second << '\n';
-        }
-     
-*/
-
+    OutputFile(decadeVector, "OutputFileDecade");
+       
     return 0;
 }
 
