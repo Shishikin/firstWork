@@ -1,24 +1,19 @@
-﻿// work1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <map>
-#include <sstream>       
-
+#include <sstream>
+#include <algorithm>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#define MANY 100000110
-
 double StringToDouble(std::string& str)
 {
-    // если строчка пустая возвращаем значение Many
-    return str == "" ? MANY : std::stod(str);
+    // если строчка пустая возвращаем значение INT_MAX
+    return str == "" ? INT_MAX : std::stod(str);
 }
 
 // структура для хранения времени и даты
@@ -62,7 +57,7 @@ struct DateTime
         std::stringstream inTime(strTime);
         GetlineToInt(day, inDate, '.');
         GetlineToInt(month, inDate, '.');
-        GetlineToInt(year, inDate, '.');                
+        GetlineToInt(year, inDate, '.');
         GetlineToInt(hour, inTime, ':');
         GetlineToInt(minute, inTime, ':');
     }
@@ -80,7 +75,7 @@ struct DateTimeValue
         out << dateTimeValue.dateTime;
         for (auto a : dateTimeValue.value)
         {
-            if (a != MANY)
+            if (a != INT_MAX)
             {
                 out << '\t' << a;
             }
@@ -133,7 +128,7 @@ struct Days
     {
         for (auto a : dateTimeValue.value)
         {
-            if (a != MANY)
+            if (a != INT_MAX)
             {
                 out << a << '\t';
             }
@@ -157,23 +152,10 @@ void PrintDateTimeAndOneDouble(std::map < DateTime, double> wec)
     }
 }
 
-char CommaToPoint(char a)
-{
-    return a == ',' ? '.' : a;
-}
-
-char SpaceToTab(char a)
-{
-    return a == ' ' ? '\t' : a;
-}
-
 void FormatInputFileLine(std::string& str)
 {
-    for (auto& a : str)
-    {
-        a = CommaToPoint(a);
-        a = SpaceToTab(a);
-    }
+    std::replace(str.begin(), str.end(), ',', '.');
+    std::replace(str.begin(), str.end(), ' ', '\t');
 }
 
 // функция хранит значение
@@ -183,7 +165,7 @@ void PushDateTimeValueToMapDays(std::map <DateTime, Days>& days, Days day, const
     {
         for (int i = 0; i < a.value.size(); ++i)
         {
-            if (std::abs(a.value[i] - MANY) > 10000)
+            if (std::abs(a.value[i] - INT_MAX) > 10000)
             {
                 days[a.dateTime].value[i] = days[a.dateTime].value[i] + a.value[i];
                 days[a.dateTime].number[i] = days[a.dateTime].number[i] + 1;
@@ -194,7 +176,7 @@ void PushDateTimeValueToMapDays(std::map <DateTime, Days>& days, Days day, const
     {
         for (int i = 0; i < a.value.size(); ++i)
         {
-            if (std::abs(MANY - a.value[i]) < 10000)
+            if (std::abs(INT_MAX - a.value[i]) < 10000)
             {
                 day.number[i] = 0;
                 day.value[i] = 0;
@@ -223,7 +205,7 @@ void AverageMapDays(std::map <DateTime, Days>& days)
             }
             else
             {
-                a.second.value[i] = MANY;
+                a.second.value[i] = INT_MAX;
             }
         }
     }
@@ -240,13 +222,13 @@ DateTimeValue Decade(DateTimeValue a)
 {
     a.dateTime.hour = 10000;
     a.dateTime.minute = 10000;
-//    a.dateTime.day = a.dateTime.day / 10 < 2 ? a.dateTime.day / 10 + 1 : 2 + 1;
-    if (a.dateTime.day / 10 < 2 )
+    //    a.dateTime.day = a.dateTime.day / 10 < 2 ? a.dateTime.day / 10 + 1 : 2 + 1;
+    if (a.dateTime.day / 10 < 2)
     {
-        if (a.dateTime.day  != 10)
+        if (a.dateTime.day != 10)
         {
             a.dateTime.day = a.dateTime.day / 10 * 10 + 1;
-        } 
+        }
         else
         {
             a.dateTime.day = 1;
@@ -267,7 +249,7 @@ DateTimeValue Decade(DateTimeValue a)
 }
 
 void VectorToMapAverageDays(std::map <DateTime, Days>& days,
-           std::vector <DateTimeValue>& dateTimeValueVector,
+    std::vector <DateTimeValue>& dateTimeValueVector,
     DateTimeValue(*func_ptr)(DateTimeValue))
 {
     Days day = Days(dateTimeValueVector[0].value.size());
@@ -338,13 +320,12 @@ int main()
     }
 
     std::vector <DateTimeValue> dateTimeValueVector;
-    
+
     // заполнение данными из файла в vector
     std::string str;
-    while (!in.eof())
+    while (getline(in, str))
     {
-        getline(in, str);
-        if (str != "")
+        if (str.length() > 8)
         {
             DateTimeValue testDateTimeValue;
             FormatInputFileLine(str);
@@ -362,27 +343,13 @@ int main()
     MapToVector(daysVector, days);
 
     OutputFile(daysVector, "OutputFileDays");
-    
+
     std::map <DateTime, Days> decadeMap;
     VectorToMapAverageDays(decadeMap, daysVector, &Decade);
     std::vector <DateTimeValue> decadeVector;
     MapToVector(decadeVector, decadeMap);
 
     OutputFile(decadeVector, "OutputFileDecade");
-       
+
     return 0;
 }
-
-
-
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
