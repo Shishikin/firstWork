@@ -5,6 +5,8 @@
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include <cstdint>
+#include <climits>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -102,7 +104,8 @@ struct DateTimeValue
             value.push_back(StringToDouble(str));
         }
     }
-
+    void Decade();
+    void NoTime();
 };
 
 
@@ -211,51 +214,49 @@ void AverageMapDays(std::map <DateTime, Days>& days)
     }
 }
 
-DateTimeValue NoTime(DateTimeValue a)
+void DateTimeValue::NoTime()
 {
-    a.dateTime.hour = 10000;
-    a.dateTime.minute = 10000;
-    return a;
+    dateTime.hour = 10000;
+    dateTime.minute = 10000;
 }
 
-DateTimeValue Decade(DateTimeValue a)
+void DateTimeValue::Decade()
 {
-    a.dateTime.hour = 10000;
-    a.dateTime.minute = 10000;
+    dateTime.hour = 10000;
+    dateTime.minute = 10000;
     //    a.dateTime.day = a.dateTime.day / 10 < 2 ? a.dateTime.day / 10 + 1 : 2 + 1;
-    if (a.dateTime.day / 10 < 2)
+    if (dateTime.day / 10 < 2)
     {
-        if (a.dateTime.day != 10)
+        if (dateTime.day != 10)
         {
-            a.dateTime.day = a.dateTime.day / 10 * 10 + 1;
+            dateTime.day = dateTime.day / 10 * 10 + 1;
         }
         else
         {
-            a.dateTime.day = 1;
+            dateTime.day = 1;
         }
     }
     else
     {
-        if (a.dateTime.day != 20)
+        if (dateTime.day != 20)
         {
-            a.dateTime.day = 21;
+            dateTime.day = 21;
         }
         else
         {
-            a.dateTime.day = 11;
+            dateTime.day = 11;
         }
     }
-    return a;
 }
 
 void VectorToMapAverageDays(std::map <DateTime, Days>& days,
     std::vector <DateTimeValue>& dateTimeValueVector,
-    DateTimeValue(*func_ptr)(DateTimeValue))
+    void (DateTimeValue::*func_ptr)())   // передача в качестве аргумента указатель на метод класса
 {
     Days day = Days(dateTimeValueVector[0].value.size());
     for (auto& a : dateTimeValueVector)
     {
-        a = func_ptr(a);
+        (a.*func_ptr)();  // использование указателя на метод класса
         PushDateTimeValueToMapDays(days, day, a);
     }
     AverageMapDays(days);
@@ -305,17 +306,11 @@ int main()
     try
     {
         in.open(pathFileInput);
-        if (!in.is_open())
-        {
-            std::cout << "Ошибка при открытии с файлом";
-            return 1;
-        }
+        // Ваш код обработки файла...
     }
     catch (const std::ifstream::failure& ex)
     {
-        std::cout << "Ошибка при открытии файла";
-        std::cout << ex.what();
-        std::cout << ex.code();
+        std::cerr << "Исключение при работе с файлом: " << ex.what() << std::endl;
         return 1;
     }
 
@@ -337,7 +332,7 @@ int main()
     in.close();
 
     std::map <DateTime, Days> days;
-    VectorToMapAverageDays(days, dateTimeValueVector, &NoTime);
+    VectorToMapAverageDays(days, dateTimeValueVector, &(DateTimeValue::NoTime));
 
     std::vector <DateTimeValue> daysVector;
     MapToVector(daysVector, days);
@@ -345,7 +340,7 @@ int main()
     OutputFile(daysVector, "OutputFileDays");
 
     std::map <DateTime, Days> decadeMap;
-    VectorToMapAverageDays(decadeMap, daysVector, &Decade);
+    VectorToMapAverageDays(decadeMap, daysVector, &(DateTimeValue::Decade));
     std::vector <DateTimeValue> decadeVector;
     MapToVector(decadeVector, decadeMap);
 
