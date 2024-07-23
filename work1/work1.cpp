@@ -279,7 +279,8 @@ void OutputFile(std::vector <DateTimeValue> daysVector, std::string message)
     std::ofstream out;
     std::string pathFileOutput;
     std::cout << message << '\n';
-    std::cin >> pathFileOutput;
+    getline(std::cin, pathFileOutput);
+ //   std::cin >> pathFileOutput;
     out.open(pathFileOutput);
     for (auto& a : daysVector)
     {
@@ -299,7 +300,7 @@ int main()
     std::ifstream in;
     std::string pathFileInput;
     std::cout << "InputFile\n";
-    std::cin >> pathFileInput;
+    std::getline(std::cin, pathFileInput);
 
 
     in.exceptions(std::ifstream::badbit);

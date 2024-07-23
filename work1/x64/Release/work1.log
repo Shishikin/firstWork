@@ -1,8 +1,8 @@
 ﻿  work1.cpp
-C:\visial studio\work1\work1\work1.cpp(257,56): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+C:\visialStudio\work1\work1\work1.cpp(256,56): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
   Создание кода
-  0 of 591 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 579 functions ( 0.7%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    28 functions had inline decision re-evaluated but remain unchanged
   Создание кода завершено
-  work1.vcxproj -> C:\visial studio\work1\x64\Release\work1.exe
+  work1.vcxproj -> C:\visialStudio\work1\x64\Release\work1.exe
