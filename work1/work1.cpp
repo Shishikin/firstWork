@@ -40,8 +40,18 @@ struct DateTime
     // оператор вывода
     friend std::ostream& operator << (std::ostream& out, const DateTime& dateTime)
     {
-        out << dateTime.year << '.' << dateTime.month << '.' << dateTime.day << '\t';
-        out << dateTime.hour << ':' << dateTime.minute;
+        out << dateTime.year << '.' << dateTime.month << '.' << dateTime.day;
+        if (!(dateTime.hour >= 24 || dateTime.hour < 0))
+        {
+            if (dateTime.minute >= 60 || dateTime.minute < 0)
+            {
+                out << '\t' << dateTime.hour;
+            }
+            else
+            {
+                out << '\t' << dateTime.hour << ':' << dateTime.minute;
+            }
+        }
         return out;
     }
 
