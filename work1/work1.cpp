@@ -299,7 +299,7 @@ int main()
     // открытия файла ввода
     std::ifstream in;
     std::string pathFileInput;
-    std::cout << "InputFile\n";
+    std::cout << "Введите путь к файлу из которого, будет извлекаться информация (он должен быть без кавычек)\n";
     std::getline(std::cin, pathFileInput);
 
 
@@ -338,14 +338,14 @@ int main()
     std::vector <DateTimeValue> daysVector;
     MapToVector(daysVector, days);
 
-    OutputFile(daysVector, "OutputFileDays");
+    OutputFile(daysVector, "Введите путь к файлу вывода среднесуточных значений (он должен быть без кавычек)");
 
     std::map <DateTime, Days> decadeMap;
     VectorToMapAverageDays(decadeMap, daysVector, &(DateTimeValue::Decade));
     std::vector <DateTimeValue> decadeVector;
     MapToVector(decadeVector, decadeMap);
 
-    OutputFile(decadeVector, "OutputFileDecade");
+    OutputFile(decadeVector, "Введите путь к файлу вывода среднедекадных значений (он должен быть без кавычек)");
 
     return 0;
 }
